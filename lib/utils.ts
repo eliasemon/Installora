@@ -37,7 +37,15 @@ export function buildShareUrl(appIds: string[], base = process.env.NEXT_PUBLIC_A
   return `${base}/share?apps=${appIds.join(",")}`
 }
 
-export function buildBrewCommand(appIds: string[]): string {
+export function buildMacCurlCommand(appIds: string[], base = process.env.NEXT_PUBLIC_APP_URL || "https://installora.vercel.app"): string {
+  return `curl -sSL "${base}/api/mac/install.sh?apps=${appIds.join(",")}" | bash`
+}
+
+export function buildLinuxCurlCommand(appIds: string[], base = process.env.NEXT_PUBLIC_APP_URL || "https://installora.vercel.app"): string {
+  return `curl -sSL "${base}/api/linux/install.sh?apps=${appIds.join(",")}" | bash`
+}
+
+export function buildMacScript(appIds: string[]): string {
   const casks = appIds.filter(id => id.startsWith('cask:')).map(id => id.replace('cask:', ''))
   const formulas = appIds.filter(id => id.startsWith('formula:')).map(id => id.replace('formula:', ''))
   const unclassified = appIds.filter(id => !id.startsWith('cask:') && !id.startsWith('formula:'))
@@ -47,16 +55,28 @@ if ! command -v brew &> /dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Install packages
+# Update Homebrew and ensure latest versions
+brew update
+
+# Install/Upgrade packages
 `
-  if (casks.length > 0) cmd += `brew install --cask ${casks.join(" ")}\n`
-  if (formulas.length > 0) cmd += `brew install ${formulas.join(" ")}\n`
-  if (unclassified.length > 0) cmd += `brew install ${unclassified.join(" ")}\n`
+  if (casks.length > 0) {
+    cmd += `brew install --cask ${casks.join(" ")}\n`
+    cmd += `brew upgrade --cask ${casks.join(" ")} 2>/dev/null || true\n`
+  }
+  if (formulas.length > 0) {
+    cmd += `brew install ${formulas.join(" ")}\n`
+    cmd += `brew upgrade ${formulas.join(" ")} 2>/dev/null || true\n`
+  }
+  if (unclassified.length > 0) {
+    cmd += `brew install ${unclassified.join(" ")}\n`
+    cmd += `brew upgrade ${unclassified.join(" ")} 2>/dev/null || true\n`
+  }
 
   return cmd.trim()
 }
 
-export function buildLinuxCommand(appIds: string[]): string {
+export function buildLinuxScript(appIds: string[]): string {
   const aptPackages = appIds.filter(id => id.startsWith('apt:')).map(id => id.replace('apt:', ''))
   const flatpakPackages = appIds.filter(id => id.startsWith('flatpak:')).map(id => id.replace('flatpak:', ''))
   const snapPackages = appIds.filter(id => id.startsWith('snap:')).map(id => id.replace('snap:', ''))
@@ -71,20 +91,22 @@ export function buildLinuxCommand(appIds: string[]): string {
   }
   
   if (aptPackages.length > 0 || unclassified.length > 0) {
-    cmd += `# Update and install APT packages\n`
+    cmd += `# Update APT and install/upgrade packages\n`
     cmd += `sudo apt update\n`
     const allApt = [...aptPackages, ...unclassified]
     cmd += `sudo apt install -y ${allApt.join(" ")}\n\n`
   }
 
   if (flatpakPackages.length > 0) {
-    cmd += `# Install Flatpak packages\n`
-    cmd += `flatpak install -y flathub ${flatpakPackages.join(" ")}\n\n`
+    cmd += `# Install or upgrade Flatpak packages\n`
+    cmd += `flatpak install -y flathub ${flatpakPackages.join(" ")}\n`
+    cmd += `flatpak update -y ${flatpakPackages.join(" ")}\n\n`
   }
 
   if (snapPackages.length > 0) {
-    cmd += `# Install Snap packages\n`
-    cmd += `sudo snap install ${snapPackages.join(" ")}\n\n`
+    cmd += `# Install or upgrade Snap packages\n`
+    cmd += `sudo snap install ${snapPackages.join(" ")} 2>/dev/null || true\n`
+    cmd += `sudo snap refresh ${snapPackages.join(" ")} 2>/dev/null || true\n\n`
   }
 
   return cmd.trim()

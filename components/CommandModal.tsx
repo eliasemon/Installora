@@ -6,8 +6,8 @@ import { toast } from "sonner"
 import {
   buildPowerShellCommand,
   buildCmdCommand,
-  buildBrewCommand,
-  buildLinuxCommand,
+  buildMacCurlCommand,
+  buildLinuxCurlCommand,
   buildShareUrl,
   copyToClipboard,
   downloadJson,
@@ -51,8 +51,8 @@ export function CommandModal({ open, onClose, selectedIds }: CommandModalProps) 
 
   const powerShellCommand = buildPowerShellCommand(selectedIds)
   const cmdCommand = buildCmdCommand(selectedIds)
-  const brewCommand = buildBrewCommand(selectedIds)
-  const linuxCommand = buildLinuxCommand(selectedIds)
+  const brewCommand = buildMacCurlCommand(selectedIds)
+  const linuxCommand = buildLinuxCurlCommand(selectedIds)
   const shareUrl = buildShareUrl(selectedIds)
 
   const currentCommand = os === "mac" 

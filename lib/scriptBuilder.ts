@@ -69,15 +69,23 @@ function Install-Package {
   Write-Host "  ─────────────────────────────────" -ForegroundColor DarkGray
   Write-Host "  ▶ $Id" -ForegroundColor White
   $listed = winget list --id $Id --exact --accept-source-agreements 2>&1
-  if ($LASTEXITCODE -eq 0 -and ($listed | Select-String ([regex]::Escape($Id)))) {
-    Write-Host "  [SKIP] Already installed" -ForegroundColor DarkYellow
-    return "skipped"
-  }
+  $isInstalled = ($LASTEXITCODE -eq 0 -and ($listed | Select-String ([regex]::Escape($Id))))
+
   $attempt = 0
   do {
     $attempt++
     if ($attempt -gt 1) { Write-Host "  [RETRY] Attempt $attempt/2..." -ForegroundColor Yellow; Start-Sleep 3 }
-    winget install --id=$Id -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1 | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+    if ($isInstalled) {
+      Write-Host "  [UPDATE] Checking for updates..." -ForegroundColor DarkCyan
+      $out = winget upgrade --id=$Id -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1
+      $out | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+      if ($out -match "No applicable update found" -or $out -match "No available upgrades" -or $out -match "No installed package found") {
+        Write-Host "  [SKIP] Already up to date" -ForegroundColor DarkYellow
+        return "skipped"
+      }
+    } else {
+      winget install --id=$Id -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1 | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+    }
   } while ($LASTEXITCODE -ne 0 -and $attempt -lt 2)
   if ($LASTEXITCODE -eq 0) { Write-Host "  [OK] Success" -ForegroundColor Green; return "success" }
   else { Write-Host "  [FAIL] Failed" -ForegroundColor Red; return "failed" }

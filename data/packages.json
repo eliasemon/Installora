@@ -4447,5 +4447,22 @@
     "popular": true,
     "size": "~10 MB",
     "logoUrl": "/images/logos/openjs-nodejs-lts.png"
+  },
+  {
+    "id": "stnkl.EverythingToolbar",
+    "name": "EverythingToolbar",
+    "description": "Everything integration for the Windows taskbar.",
+    "category": "Utilities",
+    "tags": [
+      "search",
+      "taskbar",
+      "productivity",
+      "utility",
+      "everything"
+    ],
+    "icon": "search",
+    "popular": true,
+    "size": "~10 MB",
+    "logoUrl": "/images/logos/voidtools-everything.png"
   }
 ]
