@@ -2243,5 +2243,21 @@
     "popular": false,
     "size": "~50 MB",
     "logoUrl": "/images/logos/insecure-nmap.png"
+  },
+  {
+    "id": "sh:nvm",
+    "name": "NVM",
+    "description": "Node Version Manager - Simple bash script to manage multiple active node.js versions",
+    "category": "Developer",
+    "tags": [
+      "nodejs",
+      "nvm",
+      "version-manager",
+      "tool"
+    ],
+    "icon": "terminal",
+    "popular": true,
+    "size": "~1 MB",
+    "logoUrl": "/images/logos/openjs-nodejs-lts.png"
   }
 ]

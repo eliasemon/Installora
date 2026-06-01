@@ -60,9 +60,15 @@ export function buildLinuxCommand(appIds: string[]): string {
   const aptPackages = appIds.filter(id => id.startsWith('apt:')).map(id => id.replace('apt:', ''))
   const flatpakPackages = appIds.filter(id => id.startsWith('flatpak:')).map(id => id.replace('flatpak:', ''))
   const snapPackages = appIds.filter(id => id.startsWith('snap:')).map(id => id.replace('snap:', ''))
-  const unclassified = appIds.filter(id => !id.startsWith('apt:') && !id.startsWith('flatpak:') && !id.startsWith('snap:'))
+  const shPackages = appIds.filter(id => id.startsWith('sh:'))
+  const unclassified = appIds.filter(id => !id.startsWith('apt:') && !id.startsWith('flatpak:') && !id.startsWith('snap:') && !id.startsWith('sh:'))
 
   let cmd = `#!/bin/bash\n\n`
+
+  if (shPackages.includes('sh:nvm')) {
+    cmd += `# Install NVM (Node Version Manager)\n`
+    cmd += `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash\n\n`
+  }
   
   if (aptPackages.length > 0 || unclassified.length > 0) {
     cmd += `# Update and install APT packages\n`

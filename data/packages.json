@@ -4431,5 +4431,21 @@
     "popular": false,
     "size": "~10 MB",
     "logoUrl": "/images/logos/logmein-hamachi.png"
+  },
+  {
+    "id": "CoreyButler.NVMforWindows",
+    "name": "NVM for Windows",
+    "description": "Node Version Manager to manage multiple active node.js versions",
+    "category": "Developer",
+    "tags": [
+      "nodejs",
+      "nvm",
+      "version-manager",
+      "tool"
+    ],
+    "icon": "terminal",
+    "popular": true,
+    "size": "~10 MB",
+    "logoUrl": "/images/logos/openjs-nodejs-lts.png"
   }
 ]
