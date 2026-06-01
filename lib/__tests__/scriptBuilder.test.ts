@@ -145,7 +145,7 @@ describe('scriptBuilder', () => {
       const script = buildInstallScript(['Git.Git'], [])
 
       expect(script).toContain('Retry failed:')
-      expect(script).toContain('powershell -c "irm https://installora.vercel.app/api/install.ps1?apps=')
+      expect(script).toContain('powershell -c \"irm \'https://installora.vercel.app/api/install.ps1?apps=')
     })
 
     it('should include banner with ASCII art', () => {

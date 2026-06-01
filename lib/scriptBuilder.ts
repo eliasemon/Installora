@@ -109,7 +109,7 @@ if ($r.failed.Count -gt 0) {
   Write-Host ""
   Write-Host "  Retry failed:" -ForegroundColor Red
   $fl = $r.failed -join ","
-  Write-Host "  powershell -c \"irm https://installora.vercel.app/api/install.ps1?apps=$fl | iex\"" -ForegroundColor DarkGray
+  Write-Host "  powershell -c \"irm 'https://installora.vercel.app/api/install.ps1?apps=$fl' | iex\"" -ForegroundColor DarkGray
 }
 Write-Host ""
 Write-Host "  Restart terminal to apply PATH changes." -ForegroundColor DarkCyan

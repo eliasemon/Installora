@@ -78,7 +78,7 @@ export default function DocsPage() {
                 <h2 className="text-2xl font-semibold text-[hsl(var(--color-primary))]">Example Command</h2>
                 <pre className="mt-4 p-4 bg-[hsl(var(--color-card))] rounded-lg border border-[hsl(var(--color-border))] overflow-x-auto">
                   <code className="text-sm text-[hsl(var(--color-primary))]">
-                    powershell -ExecutionPolicy Bypass -c "irm https://installora.vercel.app/api/install.ps1?apps=Git.Git,Google.Chrome | iex"
+                    powershell -ExecutionPolicy Bypass -c "irm 'https://installora.vercel.app/api/install.ps1?apps=Git.Git,Google.Chrome' | iex"
                   </code>
                 </pre>
               </section>

@@ -25,12 +25,12 @@ export function buildInstallUrl(appIds: string[], base = process.env.NEXT_PUBLIC
 
 export function buildPowerShellCommand(appIds: string[], base = process.env.NEXT_PUBLIC_APP_URL || "https://installora.vercel.app"): string {
   const url = buildInstallUrl(appIds, base)
-  return `powershell -ExecutionPolicy Bypass -c "irm ${url} | iex"`
+  return `powershell -ExecutionPolicy Bypass -c "irm '${url}' | iex"`
 }
 
 export function buildCmdCommand(appIds: string[], base = process.env.NEXT_PUBLIC_APP_URL || "https://installora.vercel.app"): string {
   const url = buildInstallUrl(appIds, base)
-  return `powershell -ExecutionPolicy Bypass -Command "irm ${url} | iex"`
+  return `powershell -ExecutionPolicy Bypass -Command "irm '${url}' | iex"`
 }
 
 export function buildShareUrl(appIds: string[], base = process.env.NEXT_PUBLIC_APP_URL || "https://installora.vercel.app"): string {
