@@ -1,5 +1,20 @@
 [
   {
+    "id": "apt:antigravity",
+    "name": "Antigravity",
+    "description": "Agentic AI coding assistant by Google DeepMind",
+    "category": "Developer",
+    "tags": [
+      "ai",
+      "coding",
+      "assistant"
+    ],
+    "icon": "antigravity",
+    "popular": true,
+    "size": "~200 MB",
+    "logoUrl": "/images/logos/antigravity.png"
+  },
+  {
     "id": "apt:logseq",
     "name": "Logseq",
     "description": "Privacy-first, open-source outliner for notes",
