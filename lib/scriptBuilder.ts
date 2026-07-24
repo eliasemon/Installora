@@ -17,13 +17,14 @@ export function buildInstallScript(validIds: string[], invalidIds: string[]): st
   const warnBlock = invalidIds
     .map(id => `Write-Warning "Skipping unknown package: ${escapePowerShell(id)}"`)
     .join("\n")
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://installora.vercel.app'
 
   return `#Requires -Version 5.1
 <#
 .SYNOPSIS  Installora Installer
 .GENERATED ${timestamp}
 .PACKAGES  ${validIds.length}
-.SOURCE    installora.vercel.app
+.SOURCE    ${baseUrl.replace(/^https?:\/\//, '')}
 #>
 $ErrorActionPreference = "Continue"
 $packages = @(
@@ -40,7 +41,7 @@ function Write-Banner {
   Write-Host "  ██║███╗██║██║██║╚██╗██║╚════██║██╔══╝     ██║   ██║   ██║██╔═══╝ " -ForegroundColor $c
   Write-Host "  ╚███╔███╔╝██║██║ ╚████║███████║███████╗   ██║   ╚██████╔╝██║     " -ForegroundColor $c
   Write-Host "   ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝    " -ForegroundColor $c
-  Write-Host "  Automated Windows Package Installer — installora.vercel.app" -ForegroundColor DarkGray
+  Write-Host "  Automated Windows Package Installer — ${baseUrl.replace(/^https?:\/\//, '')}" -ForegroundColor DarkGray
   Write-Host ""
 }
 
@@ -72,22 +73,26 @@ function Install-Package {
   $isInstalled = ($LASTEXITCODE -eq 0 -and ($listed | Select-String ([regex]::Escape($Id))))
 
   $attempt = 0
+  $cmdExitCode = 0
   do {
     $attempt++
     if ($attempt -gt 1) { Write-Host "  [RETRY] Attempt $attempt/2..." -ForegroundColor Yellow; Start-Sleep 3 }
     if ($isInstalled) {
       Write-Host "  [UPDATE] Checking for updates..." -ForegroundColor DarkCyan
       $out = winget upgrade --id=$Id -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1
+      $cmdExitCode = $LASTEXITCODE
       $out | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
       if ($out -match "No applicable update found" -or $out -match "No available upgrades" -or $out -match "No installed package found") {
         Write-Host "  [SKIP] Already up to date" -ForegroundColor DarkYellow
         return "skipped"
       }
     } else {
-      winget install --id=$Id -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1 | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+      $out = winget install --id=$Id -e --silent --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1
+      $cmdExitCode = $LASTEXITCODE
+      $out | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
     }
-  } while ($LASTEXITCODE -ne 0 -and $attempt -lt 2)
-  if ($LASTEXITCODE -eq 0) { Write-Host "  [OK] Success" -ForegroundColor Green; return "success" }
+  } while ($cmdExitCode -ne 0 -and $attempt -lt 2)
+  if ($cmdExitCode -eq 0) { Write-Host "  [OK] Success" -ForegroundColor Green; return "success" }
   else { Write-Host "  [FAIL] Failed" -ForegroundColor Red; return "failed" }
 }
 
@@ -117,7 +122,7 @@ if ($r.failed.Count -gt 0) {
   Write-Host ""
   Write-Host "  Retry failed:" -ForegroundColor Red
   $fl = $r.failed -join ","
-  Write-Host "  powershell -c \"irm 'https://installora.vercel.app/api/install.ps1?apps=$fl' | iex\"" -ForegroundColor DarkGray
+  Write-Host "  powershell -c \`"irm '${baseUrl}/api/install.ps1?apps=$fl' | iex\`"" -ForegroundColor DarkGray
 }
 Write-Host ""
 Write-Host "  Restart terminal to apply PATH changes." -ForegroundColor DarkCyan
